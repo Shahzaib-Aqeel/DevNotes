@@ -11,6 +11,10 @@ export const authOptions = {
     }),
   ],
 
+  pages: {
+    signIn: "/", 
+  },
+
   callbacks: {
     async signIn({ user }) {
       await connectDB();
@@ -35,7 +39,6 @@ export const authOptions = {
   },
 };
 
-
 const handler = NextAuth({
   providers: [
     GoogleProvider({
@@ -43,6 +46,12 @@ const handler = NextAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
   ],
+
+  
+  pages: {
+    signIn: "/", 
+  },
+
   callbacks: {
     async signIn({ user }) {
       await connectDB();

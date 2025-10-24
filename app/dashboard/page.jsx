@@ -29,7 +29,7 @@ export default function LoggedInHome() {
             ✏️ View Notes
           </Link>
           <button
-            onClick={() => ({ callbackUrl: "/" })}
+            onClick={() => signOut()}
             className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg shadow-md transition transform hover:scale-105"
           >
             🚪 Sign Out

@@ -12,7 +12,7 @@ export const authOptions = {
   ],
 
   pages: {
-    signIn: "/login",
+    signIn: "/", // Redirect to home page for sign in
   },
 
   callbacks: {
@@ -32,46 +32,27 @@ export const authOptions = {
     async session({ session }) {
       await connectDB();
       const dbUser = await User.findOne({ email: session.user.email });
-      session.user.id = dbUser._id.toString();
-      session.user.image = dbUser.image;
+      if (dbUser) {
+        session.user.id = dbUser._id.toString();
+        session.user.image = dbUser.image;
+      }
       return session;
+    },
+
+    async redirect({ url, baseUrl }) {
+      // After successful sign in, redirect to dashboard
+      if (url === baseUrl || url === `${baseUrl}/`) {
+        return `${baseUrl}/dashboard`;
+      }
+      // Allow relative URLs
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      // Allow same origin URLs
+      if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
     },
   },
 };
 
-const handler = NextAuth({
-  providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    }),
-  ],
-
-  
-  pages: {
-    signIn: "/", 
-  },
-
-  callbacks: {
-    async signIn({ user }) {
-      await connectDB();
-      const existingUser = await User.findOne({ email: user.email });
-      if (!existingUser) {
-        await User.create({
-          name: user.name,
-          email: user.email,
-          image: user.image,
-        });
-      }
-      return true;
-    },
-    async session({ session }) {
-      await connectDB();
-      const dbUser = await User.findOne({ email: session.user.email });
-      session.user.id = dbUser._id.toString();
-      return session;
-    },
-  },
-});
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };

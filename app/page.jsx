@@ -2,22 +2,34 @@
 
 import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Home() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  if (status === "loading") return null;
+  // Redirect logged-in users to dashboard
+  useEffect(() => {
+    if (session) {
+      router.push("/dashboard");
+    }
+  }, [session, router]);
 
-
-  if (session) {
-    router.push("/dashboard");
-    return null;
+  if (status === "loading") {
+    return (
+      <main className="flex justify-center items-center min-h-screen">
+        <div className="text-violet-600">Loading...</div>
+      </main>
+    );
   }
 
+  // Don't render anything if user is logged in (will redirect)
+  if (session) return null;
 
+  
   return (
     <main className="flex flex-col items-center min-h-screen bg-gradient-to-b from-violet-100 via-white to-violet-50 text-center px-6">
+  
       <section className="mt-28 max-w-3xl animate-fadeIn">
         <h1 className="text-4xl sm:text-6xl font-extrabold text-violet-800 mb-4 leading-tight">
           Welcome to <span className="text-violet-900">DevNotes</span> 🚀
@@ -27,12 +39,14 @@ export default function Home() {
           safe — all in one simple, beautiful place.
         </p>
         <button
-          onClick={() =>  window.location.href = "/login"}
+          onClick={() => signIn("google")}
           className="bg-violet-600 hover:bg-violet-700 text-white px-10 py-3 rounded-xl text-lg font-medium shadow-lg transition transform hover:scale-105"
         >
           Get Started
         </button>
       </section>
+
+   
       <section className="mt-24 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-6xl w-full px-4">
         <FeatureCard
           icon="💡"
@@ -50,6 +64,7 @@ export default function Home() {
           desc="Powered by Next.js for instant performance and smooth experience on all devices."
         />
       </section>
+
       <section className="mt-24 mb-16 text-center">
         <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800 mb-4">
           Start capturing your best ideas today
@@ -64,6 +79,7 @@ export default function Home() {
     </main>
   );
 }
+
 
 function FeatureCard({ icon, title, desc }) {
   return (
